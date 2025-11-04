@@ -1,5 +1,6 @@
 // Declaración de variables
 let canvas, ctx;
+const canvasSize = 600;
 let naveX = 0; //Posición original en x de la nave
 let naveY = 0; //Posición original en y de la nave
 let nave = new Image(); //Imagen para capturar la nave
@@ -7,6 +8,12 @@ let fondoNave = new Image(); //Imagen para capturar el fondo;
 let contador = 40; // Contador de movimientos
 let tiempo = new Date(15000); //Para tener solo 15 segundos en milisegundos
 let stop; //Para parar el temporizador
+const naveTamanio = 30;
+let naveImg;
+let baseImg;
+let asteroidesImg = [];
+let asteroidesCargados = 0;
+let asteroidesPosicion = [];
 
 // Inicio del juego
 function canvasStars(){
@@ -20,12 +27,13 @@ function canvasStars(){
     pintarFondo();
 
     //Llamo a la función que pinta la nave
-    pintarNave();
+    cargarNave();
 
     //Llamo a la función que pinta la base
     pintarBase();
 
     //Llamo a la función que pinta los asteroides
+    poblarArrayAsteroides();
     pintarAsteroides();
 
     //Añado el escuchador del teclado
@@ -42,15 +50,15 @@ function pintarFondo(){
     //Pinto el fondo de negro
     ctx.fillStyle = "black";
     ctx.beginPath();
-    ctx.rect(0,0,600,600); // posición x, y, ancho y alto
+    ctx.rect(0,0,canvasSize,canvasSize); // posición x, y, ancho y alto
     ctx.closePath();
     ctx.fill();
 
     //Pinto 100 estrellas
     for(i= 0; i < 100; i++){
         //Posiciones x e y aleatorias
-        const x = Math.random() * 600;
-        const y = Math.random() * 600;
+        const x = Math.random() * canvasSize;
+        const y = Math.random() * canvasSize;
 
         //Pinto un punto blanco en esa posición
         ctx.fillStyle = "white";
@@ -65,33 +73,48 @@ function pintarFondo(){
 
 }
 
-// Pinto la nave
-function pintarNave(){
-    ctx.fillStyle = "green";
-    ctx.beginPath();
-        ctx.rect(0, 0, 30, 30); //esquina superior izquierda, tamaño 30x30
-    ctx.closePath();
-    ctx.fill();
-
-    //Guardo la nave como imagen
-    nave = ctx.getImageData(0, 0, 30, 30);
+function cargarNave(){
+    naveImg = new Image();
+    naveImg.src = "../img/nave.svg";
+    naveImg.onload = () => {
+        fondoNave = ctx.getImageData(naveX, naveY, naveTamanio, naveTamanio);
+        ctx.drawImage(naveImg, naveX, naveY, naveTamanio, naveTamanio);
+    }
 }
 
 // Pinto la base
 function pintarBase(){
-    ctx.fillStyle = "blue";
-    ctx.beginPath();
-        ctx.rect(570, 570, 30, 30); // esquina inferior derecha, tamaño 30x30
-    ctx.closePath();
-    ctx.fill();
+    baseImg = new Image();
+    baseImg.src = "../img/base.svg";
+    baseImg.onload = () => {
+        ctx.drawImage(baseImg, canvasSize - naveTamanio, canvasSize - naveTamanio, naveTamanio, naveTamanio);
+    }
+}
+
+function poblarArrayAsteroides(){
+    for(i= 1 ; i <= 9; i++){
+        const asteroide = new Image();
+        asteroide.src = `../img/asteroide${i}.svg`;
+
+        asteroide.onload = () =>  {
+            asteroidesCargados++;
+            if(asteroidesCargados === 9) {
+                pintarAsteroides();
+            }
+        };
+
+        asteroidesImg.push(asteroide);
+    }
 }
 
 // Pintar asteroides
 function pintarAsteroides(){
+    asteroidesPosicion = [];
     for(i = 0; i < 30; i++){
 
-        const x = Math.random() * 570;
-        const y = Math.random() * 570;
+        let x = Math.random() * 570;
+        let y = Math.random() * 570;
+        const indiceAsteroide = Math.floor(Math.random() * 9);
 
         // Comprouebo que no hay asteroirdes en la nave
         if (x < 30 && y < 30){
@@ -106,13 +129,12 @@ function pintarAsteroides(){
         }
 
         // Pinto el asteroide
-        ctx.fillStyle = "red";
-        ctx.beginPath();
-            ctx.rect(x, y, 20, 20);
-        ctx.closePath();
-        ctx.fill();
-    }
+        const asteroide = asteroidesImg[indiceAsteroide];
+        console.log(asteroide);
+        ctx.drawImage(asteroide, x, y, naveTamanio, naveTamanio);
 
+        asteroidesPosicion.push({x, y});
+    }
 }
 
 // Muevo la nave
@@ -137,7 +159,7 @@ function moverNave(evento){
             //Capturo el fondo que voy a tapar
             fondoNave = ctx.getImageData(naveX, naveY, 30, 30);
             //Muevo la nave
-            ctx.putImageData(nave, naveX, naveY);
+            ctx.drawImage(naveImg, naveX, naveY, naveTamanio, naveTamanio);
             //Compruebo la colisión
             detectarColision();
             break;
@@ -158,7 +180,7 @@ function moverNave(evento){
             //Capturo el fondo que voy a tapar
             fondoNave = ctx.getImageData(naveX, naveY, 30, 30);
             //Muevo la nave
-            ctx.putImageData(nave, naveX, naveY);
+            ctx.drawImage(naveImg, naveX, naveY, naveTamanio, naveTamanio);
             //Compruebo la colisión
             detectarColision();
             break;
@@ -179,7 +201,7 @@ function moverNave(evento){
             //Capturo el fondo que voy a tapar
             fondoNave = ctx.getImageData(naveX, naveY, 30, 30);
             //Muevo la nave
-            ctx.putImageData(nave, naveX, naveY);
+            ctx.drawImage(naveImg, naveX, naveY, naveTamanio, naveTamanio);
             //Compruebo la colisión
             detectarColision();
             break;
@@ -200,7 +222,7 @@ function moverNave(evento){
             //Capturo el fondo que voy a tapar
             fondoNave = ctx.getImageData(naveX, naveY, 30, 30);
             //Muevo la nave
-            ctx.putImageData(nave, naveX, naveY);
+            ctx.drawImage(naveImg, naveX, naveY, naveTamanio, naveTamanio);
             //Compruebo la colisión
             detectarColision();
             break;
@@ -242,17 +264,31 @@ function detectarColision(){
     //Recorro en busca del rojo (asteroide) o del azul (base)
     for (let i=0; i<elementos; i += 4){
 
-        //Asteroide (255, 0, 0)
-        if(fondoNave.data[i] === 255 && fondoNave.data[i+1] === 0 &&fondoNave.data[i+2] === 0 ){
-            const mensaje = "¡Lo siento! Has chocado con un asteoride. Pincha AQUÍ para volver a intentarlo.";
+        //Asteroides
+        for(const pos of asteroidesPosicion){
+            if(
+                naveX < pos.x + naveTamanio &&      // el borde derecho de la nave pasa del borde izquierdo del asteroide
+                naveX + naveTamanio > pos.x &&      // el borde izquierdo de la nave está antes del borde derecho del asteroide
+                naveY < pos.y + naveTamanio &&      // el borde inferior de la nave pasa del borde superior del asteroide
+                naveY + naveTamanio > pos.y
+            ){
+                const mensaje = "¡Lo siento! Has chocado con un asteoride. Pincha AQUÍ para volver a intentarlo.";
 
             finalizar(mensaje);
 
             break;
+            }
         }
 
-        //Base (0, 0, 255)
-        if(fondoNave.data[i] === 0 && fondoNave.data[i+1] === 0 && fondoNave.data[i+2] === 255){
+        //Base
+        const basePos = canvasSize - naveTamanio;
+
+        if(
+            naveX < basePos + naveTamanio &&
+            naveX + naveTamanio > basePos &&
+            naveY < basePos + naveTamanio &&
+            naveY + naveTamanio > basePos
+        ){
             const mensaje = "¡Enhorabuena! Has llegado a la base. Pincha AQUÍ para volver a jugar.";
             finalizar(mensaje);
             break;
