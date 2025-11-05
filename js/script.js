@@ -11,6 +11,7 @@ let stop; //Para parar el temporizador
 const naveTamanio = 30;
 let naveImg;
 let baseImg;
+let brujulaImg;
 let asteroidesImg = [];
 let asteroidesCargados = 0;
 let asteroidesPosicion = [];
@@ -28,17 +29,28 @@ function canvasStars() {
     //Especifico el contexto 2D
     ctx = canvas.getContext("2d");
 
+    brujulaImg = new Image();
+    brujulaImg.src = "../img/brujula.svg";
+    baseImg = new Image();
+    baseImg.src = "../img/base.svg";
+    naveImg = new Image();
+    naveImg.src = "../img/nave.svg";
+
     //Llamo a la función que pinta el fondo de las estrellas
     poblarEstrellas();
+    poblarAsteroides();
+}
 
-    //Llamo a la función que pinta la nave
+let fondoListo = false;
+let asteroidesListos = false;
+
+function cargarRestoElementos(){
+    if(fondoListo && asteroidesListos) {
+        //Llamo a la función que pinta la nave
     cargarNave();
 
     //Llamo a la función que pinta la base
-    cargarBase();
-
-    //Llamo a la función que pinta los asteroides
-    poblarAsteroides();
+    cargarBase();  
 
     //Llamo a la función que pinta las brújulas
     cargarBrujulas();
@@ -48,7 +60,7 @@ function canvasStars() {
 
     //Lamada al temporizador
     temporizador();
-
+    }
 }
 
 //Cargo las imagenes de las estrellas en el array
@@ -58,7 +70,11 @@ function poblarEstrellas() {
         estrella.src = `../img/estrella${i}.svg`;
         estrella.onload = () => {
             estrellasCargadas++;
-            if (estrellasCargadas === 7) pintarFondo();
+            if (estrellasCargadas === 7) {
+                pintarFondo();
+                fondoListo = true;
+                cargarRestoElementos();
+            }
         }
         estrellasImg.push(estrella);
     }
@@ -96,8 +112,6 @@ function pintarFondo() {
 }
 
 function cargarNave() {
-    naveImg = new Image();
-    naveImg.src = "../img/nave.svg";
     naveImg.onload = () => {
         fondoNave = ctx.getImageData(naveX, naveY, naveTamanio, naveTamanio);
         ctx.drawImage(naveImg, naveX, naveY, naveTamanio, naveTamanio);
@@ -106,8 +120,6 @@ function cargarNave() {
 
 // Pinto la base
 function cargarBase() {
-    baseImg = new Image();
-    baseImg.src = "../img/base.svg";
     baseImg.onload = () => {
         ctx.drawImage(baseImg, canvasSize - naveTamanio, canvasSize - naveTamanio, naveTamanio, naveTamanio);
     }
@@ -122,6 +134,8 @@ function poblarAsteroides() {
             asteroidesCargados++;
             if (asteroidesCargados === 9) {
                 pintarAsteroides();
+                asteroidesListos = true;
+                cargarRestoElementos();
             }
         };
 
@@ -173,11 +187,8 @@ function cargarBrujulas() {
         let valido = false;
 
         while (!valido) {
-            x = Math.random() * (canvasSize - brujulaTamanio);
-            y = Math.random() * (canvasSize - brujulaTamanio);
-
-            x = Math.floor(x);
-            y = Math.floor(y);
+            x = Math.floor(Math.random() * (canvasSize - brujulaTamanio));
+            y = Math.floor(Math.random() * (canvasSize - brujulaTamanio));
 
             //Evitar la nave (0,0) y la base (570, 570);
             if ((x < 60 && y < 60) || (x > 540 && y > 540)) continue;
@@ -200,14 +211,13 @@ function cargarBrujulas() {
                 }
             }
 
-            const brujula = new Image();
             const fondo = ctx.getImageData(x, y, brujulaTamanio, brujulaTamanio);
-            brujula.src = "../img/brujula.svg";
-            if (brujula.complete) {
-                ctx.drawImage(brujula, x, y, brujulaTamanio, brujulaTamanio);
+            
+            if (brujulaImg.complete) {
+                ctx.drawImage(brujulaImg, x, y, brujulaTamanio, brujulaTamanio);
             } else {
-                brujula.onload = () => {
-                    ctx.drawImage(brujula, x, y, brujulaTamanio, brujulaTamanio);
+                brujulaImg.onload = () => {
+                    ctx.drawImage(brujulaImg, x, y, brujulaTamanio, brujulaTamanio);
                 }
             }
 
@@ -387,7 +397,8 @@ function detectarColision() {
         }
 
         //Brujulas
-        for(const pos of brujulasPosicion){
+        for(let i = 0; i < brujulasPosicion.length; i++){
+            const pos = brujulasPosicion[i];
             if(
                 naveX < pos.x + naveTamanio &&      
                 naveX + naveTamanio > pos.x &&      
