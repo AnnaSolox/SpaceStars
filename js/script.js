@@ -18,7 +18,7 @@ let estrellasImg = [];
 let estrellasCargadas = 0;
 
 // Inicio del juego
-function canvasStars(){
+function canvasStars() {
     //Obtengo el elemento canvas
     canvas = document.getElementById("miCanvas");
     canvasSize = canvas.width;
@@ -47,30 +47,30 @@ function canvasStars(){
 }
 
 //Cargo las imagenes de las estrellas en el array
-function poblarEstrellas(){
-    for (i = 1; i <= 7; i++){
+function poblarEstrellas() {
+    for (i = 1; i <= 7; i++) {
         const estrella = new Image();
         estrella.src = `../img/estrella${i}.svg`;
         estrella.onload = () => {
             estrellasCargadas++;
-            if(estrellasCargadas === 7) pintarFondo();
+            if (estrellasCargadas === 7) pintarFondo();
         }
         estrellasImg.push(estrella);
     }
 }
 
 // Pinto el fondo con estrellas
-function pintarFondo(){
+function pintarFondo() {
 
     //Pinto el fondo de negro
     ctx.fillStyle = "black";
     ctx.beginPath();
-    ctx.rect(0,0,canvasSize,canvasSize); // posición x, y, ancho y alto
+    ctx.rect(0, 0, canvasSize, canvasSize); // posición x, y, ancho y alto
     ctx.closePath();
     ctx.fill();
 
     //Pinto 100 estrellas
-    for(i= 0; i < 100; i++){
+    for (i = 0; i < 100; i++) {
         const indiceEstrella = Math.floor(Math.random() * 7);
         const estrella = estrellasImg[indiceEstrella];
         const escalaEstrellas = 0.55;
@@ -90,7 +90,7 @@ function pintarFondo(){
 
 }
 
-function cargarNave(){
+function cargarNave() {
     naveImg = new Image();
     naveImg.src = "../img/nave.svg";
     naveImg.onload = () => {
@@ -100,7 +100,7 @@ function cargarNave(){
 }
 
 // Pinto la base
-function pintarBase(){
+function pintarBase() {
     baseImg = new Image();
     baseImg.src = "../img/base.svg";
     baseImg.onload = () => {
@@ -108,14 +108,14 @@ function pintarBase(){
     }
 }
 
-function poblarArrayAsteroides(){
-    for(i= 1 ; i <= 9; i++){
+function poblarArrayAsteroides() {
+    for (i = 1; i <= 9; i++) {
         const asteroide = new Image();
         asteroide.src = `../img/asteroide${i}.svg`;
 
-        asteroide.onload = () =>  {
+        asteroide.onload = () => {
             asteroidesCargados++;
-            if(asteroidesCargados === 9) {
+            if (asteroidesCargados === 9) {
                 pintarAsteroides();
             }
         };
@@ -125,38 +125,49 @@ function poblarArrayAsteroides(){
 }
 
 // Pintar asteroides
-function pintarAsteroides(){
+function pintarAsteroides() {
     asteroidesPosicion = [];
-    for(i = 0; i < 30; i++){
+    const numeroAsteroides = 25;
+    const separacionMin = 30;
 
-        let x = Math.random() * 570;
-        let y = Math.random() * 570;
-        const indiceAsteroide = Math.floor(Math.random() * 9);
+    for (i = 0; i < numeroAsteroides; i++) {
+        let x, y, tamanioAsteriode;
+        let valido = false;
 
-        // Comprouebo que no hay asteroirdes en la nave
-        if (x < 30 && y < 30){
-            x += 30;
-            y += 30;
-        }
+        while (!valido) {
+            tamanioAsteriode = Math.random() * (30 - 20) + 20;
+            x = Math.random() * (canvasSize - tamanioAsteriode);
+            y = Math.random() * (canvasSize - tamanioAsteriode);
 
-        // Compruebo que no hay asteroides en la base
-        if( x > 540 && y > 540){
-            x -= 30;
-            y -= 30;
+            //Evitar la nave (0,0) y la base (570, 570);
+            if ((x < 60 && y < 60) || (x > 540 && y > 540)) continue;
+
+            
+            valido = true;
+            for (const pos of asteroidesPosicion) {
+                const distX = x - pos.x;
+                const distY = y - pos.y;
+                const distancia = Math.sqrt(distX * distX + distY * distY);
+                if (distancia < separacionMin) {
+                    valido = false;
+                    break;
+                }
+            }
         }
 
         // Pinto el asteroide
+        const indiceAsteroide = Math.floor(Math.random() * 9);
         const asteroide = asteroidesImg[indiceAsteroide];
-        ctx.drawImage(asteroide, x, y, naveTamanio, naveTamanio);
+        ctx.drawImage(asteroide, x, y, tamanioAsteriode, tamanioAsteriode);
 
-        asteroidesPosicion.push({x, y});
+        asteroidesPosicion.push({ x, y });
     }
 }
 
 // Muevo la nave
-function moverNave(evento){
+function moverNave(evento) {
     //Detecto la tecla que estoy pulsando
-    switch(evento.keyCode){
+    switch (evento.keyCode) {
         //Izquierda: 37 o 65 (flecha izquierda o letra A)
 
         case 37:
@@ -164,7 +175,7 @@ function moverNave(evento){
             //Actualizar el contador
             actualizarContador();
             //Compruebo si se va a salir por la izquierda
-            if(naveX === 0){
+            if (naveX === 0) {
                 break;
             }
 
@@ -180,13 +191,13 @@ function moverNave(evento){
             detectarColision();
             break;
 
-         //Derecha: 39 o 68 (flecha derecha o letra D)
+        //Derecha: 39 o 68 (flecha derecha o letra D)
         case 39:
         case 68:
             //Actualizar el contador
             actualizarContador();
             //Compruebo si se va a salir por la derecha
-            if (naveX === 570){
+            if (naveX === 570) {
                 break;
             }
             //Borro la nave (pintando fondoNave encima)
@@ -207,7 +218,7 @@ function moverNave(evento){
             //Actualizar el contador
             actualizarContador();
             //Compruebo si se va a salir por arriba
-            if (naveY===0){
+            if (naveY === 0) {
                 break;
             }
             //Borro la nave (pintando fondoNave encima)
@@ -228,7 +239,7 @@ function moverNave(evento){
             //Actualizar el contador
             actualizarContador();
             //Compruebo si se va a salir por abajo
-            if (naveY === 570){
+            if (naveY === 570) {
                 break;
             }
             //Borro la nave (pintando fondoNave encima)
@@ -246,7 +257,7 @@ function moverNave(evento){
 }
 
 //Actualizo el contador y detecto si se ha quedado sin movimientos
-function actualizarContador(){
+function actualizarContador() {
     //Decremento en cada movimiento
     contador--;
 
@@ -257,62 +268,62 @@ function actualizarContador(){
     spanPuntuacion.innerHTML = contador;
 
     //Compruebo el valor para cambiar el color del texto
-    if (contador < 6){
+    if (contador < 6) {
         spanPuntuacion.style.color = "red";
-    } else if (contador < 11){
+    } else if (contador < 11) {
         spanPuntuacion.style.color = "orange";
-    } else{
+    } else {
         spanPuntuacion.style.color = "#0F0";
     }
 
     // Compruebo si se ha quedado sin puntos
-    if (contador === 0){
+    if (contador === 0) {
         const mensaje = "¡Lo siento! Te has quedado sin puntos. \nPincha Aquí para volver a intentarlo."
         finalizar(mensaje);
     }
 }
 
 // Detecto las colisiones con las base u otros asteroides
-function detectarColision(){
+function detectarColision() {
     const pixels = 900; //Porque la imagen es de 30x30 pixels
-    const elementos = pixels*4; //porque cada pixel tiene 4 bytes (RGBA)
+    const elementos = pixels * 4; //porque cada pixel tiene 4 bytes (RGBA)
 
     //Recorro en busca del rojo (asteroide) o del azul (base)
-    for (let i=0; i<elementos; i += 4){
+    for (let i = 0; i < elementos; i += 4) {
 
         //Asteroides
-        for(const pos of asteroidesPosicion){
-            if(
+        for (const pos of asteroidesPosicion) {
+            if (
                 naveX < pos.x + naveTamanio &&      // el borde derecho de la nave pasa del borde izquierdo del asteroide
                 naveX + naveTamanio > pos.x &&      // el borde izquierdo de la nave está antes del borde derecho del asteroide
                 naveY < pos.y + naveTamanio &&      // el borde inferior de la nave pasa del borde superior del asteroide
-                naveY + naveTamanio > pos.y
-            ){
+                naveY + naveTamanio > pos.y         // el borde superior de la nave está antes del borde inferior del asperiode
+            ) {
                 const mensaje = "¡Lo siento! Has chocado con un asteoride. \nPincha AQUÍ para volver a intentarlo.";
 
-            finalizar(mensaje);
+                finalizar(mensaje);
 
-            break;
+                break;
             }
         }
 
         //Base
         const basePos = canvasSize - naveTamanio;
 
-        if(
+        if (
             naveX < basePos + naveTamanio &&
             naveX + naveTamanio > basePos &&
             naveY < basePos + naveTamanio &&
             naveY + naveTamanio > basePos
-        ){
+        ) {
             const mensaje = "¡Enhorabuena! Has llegado a la base. \nPincha AQUÍ para volver a jugar.";
             finalizar(mensaje);
             break;
-        } 
+        }
     }
 }
 
-function temporizador(){
+function temporizador() {
     //Decremento 500 milisegundos
     let ms = tiempo.getMilliseconds() - 500;
     tiempo.setMilliseconds(ms);
@@ -323,7 +334,7 @@ function temporizador(){
     spanTiempo.innerHTML = texto;
 
     //Comprueba el valor para cambiar el color del texto
-    if(tiempo.getSeconds() < 6){
+    if (tiempo.getSeconds() < 6) {
         spanTiempo.style.color = "red";
     } else if (tiempo.getSeconds() < 11) {
         spanTiempo.style.color = "orange";
@@ -332,7 +343,7 @@ function temporizador(){
     }
 
     //Compruebo si llega a 0 para finalizar el juego o continuar
-    if(tiempo.getSeconds() <= 0){
+    if (tiempo.getSeconds() <= 0) {
         const mensaje = "¡Lo siento! Se ha terminado el tiempo. \nPincha AQUÍ para volver a intentarlo.";
         finalizar(mensaje);
     } else {
@@ -341,16 +352,16 @@ function temporizador(){
     }
 }
 
-function rellenaCeros(numero){
-    if(numero < 10){
-        return "0" +  numero;
+function rellenaCeros(numero) {
+    if (numero < 10) {
+        return "0" + numero;
     } else {
         return numero;
     }
 }
 
 // Finalizo el juego
-function finalizar(mensaje){
+function finalizar(mensaje) {
     //Capturo el elemento en el que voy a escribir
     const spanMensaje = document.getElementById("mensaje");
 
@@ -363,6 +374,6 @@ function finalizar(mensaje){
 }
 
 // Reinicio el juego
-function reiniciar(){
+function reiniciar() {
     window.location.reload();
 }
