@@ -14,6 +14,8 @@ let baseImg;
 let asteroidesImg = [];
 let asteroidesCargados = 0;
 let asteroidesPosicion = [];
+let estrellasImg = [];
+let estrellasCargadas = 0;
 
 // Inicio del juego
 function canvasStars(){
@@ -24,7 +26,7 @@ function canvasStars(){
     ctx = canvas.getContext("2d");
 
     //Llamo a la función que pinta el fondo de las estrellas
-    pintarFondo();
+    poblarEstrellas();
 
     //Llamo a la función que pinta la nave
     cargarNave();
@@ -34,7 +36,6 @@ function canvasStars(){
 
     //Llamo a la función que pinta los asteroides
     poblarArrayAsteroides();
-    pintarAsteroides();
 
     //Añado el escuchador del teclado
     window.addEventListener('keydown', moverNave, true);
@@ -42,6 +43,19 @@ function canvasStars(){
     //Lamada al temporizador
     temporizador();
 
+}
+
+//Cargo las imagenes de las estrellas en el array
+function poblarEstrellas(){
+    for (i = 1; i <= 7; i++){
+        const estrella = new Image();
+        estrella.src = `../img/estrella${i}.svg`;
+        estrella.onload = () => {
+            estrellasCargadas++;
+            if(estrellasCargadas === 7) pintarFondo();
+        }
+        estrellasImg.push(estrella);
+    }
 }
 
 // Pinto el fondo con estrellas
@@ -56,16 +70,18 @@ function pintarFondo(){
 
     //Pinto 100 estrellas
     for(i= 0; i < 100; i++){
+        const indiceEstrella = Math.floor(Math.random() * 7);
+        const estrella = estrellasImg[indiceEstrella];
+        const escalaEstrellas = 0.55;
+        console.log(estrella);
         //Posiciones x e y aleatorias
         const x = Math.random() * canvasSize;
         const y = Math.random() * canvasSize;
 
         //Pinto un punto blanco en esa posición
-        ctx.fillStyle = "white";
-        ctx.beginPath();
-        ctx.arc(x , y , 3 , 0 , Math.PI * 2); //posición x, y, radio (px), inicio del arco (en grados) fin del arco (en grados)
-        ctx.closePath();
-        ctx.fill();
+        fondoNave = ctx.getImageData(naveX, naveY, naveTamanio, naveTamanio);
+        ctx.drawImage(estrella, x, y, estrella.width * escalaEstrellas, estrella.height * escalaEstrellas)
+        //ctx.drawImage(estrella, x , y , Math.PI * 2); //posición x, y, radio (px), inicio del arco (en grados) fin del arco (en grados)
     }
 
     //Guardo el fondo de detrás de la nave como imagen
@@ -130,7 +146,6 @@ function pintarAsteroides(){
 
         // Pinto el asteroide
         const asteroide = asteroidesImg[indiceAsteroide];
-        console.log(asteroide);
         ctx.drawImage(asteroide, x, y, naveTamanio, naveTamanio);
 
         asteroidesPosicion.push({x, y});
