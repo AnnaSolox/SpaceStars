@@ -2,7 +2,7 @@
 
 **Space stars** es un juego desarrollado en `HTML5`, `CSS`y `JavaScript` en el que el jugador debe guiar una nave hasta la base evitando asteroides antes de agotar el tiempo y los movimientos disponibles.
 
-Incluye mejoras tanto visuales como de jugabilidad respecto a versiones básicas del concepto.
+Incluye assets y recompensas personalizadas con respecto a la versión básica del juego.
 
 ## Mecánica del juego
 - Mueve la nave en una cuadrícula hasta alcanzar la base.
