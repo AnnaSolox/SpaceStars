@@ -18,12 +18,12 @@ Incluye mejoras tanto visuales como de jugabilidad respecto a versiones básicas
 ├── index.html
 ├── css/
 │   └── style.css
-├── js/
-│   └── script.js
-└── assets/
-    ├── nave.svg
-    ├── asteroide.svg
-    ├── estrella.svg
-    ├── brujula.svg
-    └── base.svg
+├── img/
+│   ├── nave.svg
+│   ├── asteroide1.svg
+│   ├── estrella1.svg
+│   ├── brujula.svg
+│   └── ...
+└── js/
+    └── script.js
 ```
